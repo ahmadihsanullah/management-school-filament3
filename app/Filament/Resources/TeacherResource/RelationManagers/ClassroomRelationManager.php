@@ -2,17 +2,21 @@
 
 namespace App\Filament\Resources\TeacherResource\RelationManagers;
 
-use App\Models\Classroom;
-use App\Models\Periode;
 use Filament\Forms;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
-use Filament\Tables\Columns\ToggleColumn;
+use App\Models\Periode;
+use Filament\Forms\Set;
+use Filament\Forms\Form;
+use App\Models\Classroom;
+use Filament\Forms\Components\Hidden;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Resources\RelationManagers\RelationManager;
 
 class ClassroomRelationManager extends RelationManager
 {
@@ -25,11 +29,27 @@ class ClassroomRelationManager extends RelationManager
                 Select::make('classroom_id')
                     ->label('select class')
                     ->options(Classroom::all()->pluck('name', 'id'))
-                    ->searchable(),
+                    ->searchable()
+                    ->relationship('classroom', 'name')
+                    ->createOptionForm([
+                        TextInput::make("name")
+                            ->reactive()
+                            ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug', Str::slug($state)))
+                            ->required(),
+                        Hidden::make("slug")
+                            ->required(),
+                    ])
+                    ->preload(),
                 Select::make('periode_id')
                     ->label('select periode')
                     ->options(Periode::all()->pluck('name', 'id'))
-                    ->searchable(),
+                    ->searchable()
+                    ->relationship('periode', 'name')
+                    ->createOptionForm([
+                        TextInput::make("name")
+                            ->required()
+                    ])
+                    ->preload(),
             ]);
     }
 
