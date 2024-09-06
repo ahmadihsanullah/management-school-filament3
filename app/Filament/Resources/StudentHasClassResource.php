@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\StudentHasClassResource\Pages;
+use App\Models\Classroom;
 use App\Models\HomeRoom;
 use App\Models\Periode;
 use App\Models\Student;
@@ -37,10 +38,10 @@ class StudentHasClassResource extends Resource
                             ->searchable()
                             ->options(Student::all()->pluck('name', 'id'))
                             ->label('Student'),
-                        Select::make('homerooms_id')
+                        Select::make('classrooms_id')
                             ->searchable()
-                            ->options(HomeRoom::all()->pluck('classroom.name','id'))
-                            ->label('Homeroom'),
+                            ->options(Classroom::all()->pluck('name','id'))
+                            ->label('classroom'),
                         Select::make('periode_id')
                             ->searchable()
                             ->options(Periode::all()->pluck('name', 'id'))
@@ -54,7 +55,7 @@ class StudentHasClassResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('students.name'),
-                TextColumn::make('homeroom.classroom.name')
+                TextColumn::make('classrooms.name')
             ])
             ->filters([
                 //

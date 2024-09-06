@@ -27,6 +27,7 @@ use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugi
 use App\Filament\Resources\CategoryNilaiResource;
 use App\Filament\Resources\ClassroomResource;
 use App\Filament\Resources\DepartmentResource;
+use App\Filament\Resources\StudentHasClassResource;
 use App\Filament\Resources\StudentResource;
 use App\Filament\Resources\SubjectResource;
 use App\Filament\Resources\TeacherResource;
@@ -90,6 +91,7 @@ class AdminPanelProvider extends PanelProvider
                         ->items([
                             ...TeacherResource::getNavigationItems(),
                             ...StudentResource::getNavigationItems(),
+                            ...StudentHasClassResource::getNavigationItems(),
                             ...SubjectResource::getNavigationItems(),
                         ]),
                     NavigationGroup::make('Source')
