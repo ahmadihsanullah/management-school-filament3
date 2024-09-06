@@ -14,12 +14,12 @@ class HomeRoom extends Model
 
     public function teacher(): BelongsTo
     {
-        return $this->belongsTo(Teacher::class, 'teacher_id', 'id');
+        return $this->belongsTo(Teacher::class, 'teachers_id', 'id');
     }
 
     public function classroom(): BelongsTo
     {
-        return $this->belongsTo(Classroom::class, 'classroom_id', 'id');
+        return $this->belongsTo(Classroom::class, 'classrooms_id', 'id');
     }
 
     public function periode(): BelongsTo

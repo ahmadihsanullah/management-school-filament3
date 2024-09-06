@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\ClassroomResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ClassroomResource\RelationManagers;
+use App\Filament\Resources\ClassroomResource\RelationManagers\SubjectsRelationManager;
 use App\Models\Teacher;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
@@ -25,6 +26,11 @@ class ClassroomResource extends Resource
     protected static ?string $model = Classroom::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+
+    protected static ?string $navigationGroup = 'Source';
+
+    protected static ?int $navigationSort = 32;
 
     public static function form(Form $form): Form
     {
@@ -62,7 +68,7 @@ class ClassroomResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            SubjectsRelationManager::class
         ];
     }
 

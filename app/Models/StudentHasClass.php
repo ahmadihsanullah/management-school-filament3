@@ -7,5 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class StudentHasClass extends Model
 {
-    use HasFactory;
+    use HasFactory; 
+
+    protected $guarded = [];
+
+    public function students()
+    {
+        return $this->belongsTo(Student::class, 'students_id', 'id');
+    }
+
+    public function homeroom()  {
+        return $this->belongsTo(HomeRoom::class, 'homerooms_id', 'id');
+    }
+
 }

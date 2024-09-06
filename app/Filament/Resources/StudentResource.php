@@ -7,6 +7,7 @@ use Filament\Tables;
 use App\Models\Student;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
 use Illuminate\Support\Facades\App;
@@ -18,9 +19,18 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ImageEntry;
 use App\Filament\Resources\StudentResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\StudentResource\RelationManagers;
+use Filament\Tables\Actions\BulkAction;
+use Illuminate\Database\Eloquent\Collection;
+use Filament\Forms\Components\Actions;
+use Filament\Infolists\Components;
+use Filament\Infolists\Components\Fieldset;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 
 class StudentResource extends Resource
 {
@@ -29,6 +39,10 @@ class StudentResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     // protected static ?string $navigationLabel = 'Siswa/i';
+
+    protected static ?string $navigationGroup = 'Academic';
+
+    protected static ?int $navigationSort = 21;
 
     public static function form(Form $form): Form
     {
@@ -40,8 +54,8 @@ class StudentResource extends Resource
                         TextInput::make('name'),
                         Select::make('gender')
                             ->options([
-                                'male'=> 'Male',
-                                'female'=> 'Female',
+                                'male' => 'Male',
+                                'female' => 'Female',
                             ]),
                         DatePicker::make('birthday'),
                         Select::make('religion')
@@ -73,16 +87,68 @@ class StudentResource extends Resource
                 TextColumn::make('birthday'),
                 TextColumn::make('religion'),
                 TextColumn::make('contact'),
-                ImageColumn::make('profile')
+                ImageColumn::make('profile'),
+                TextColumn::make('status')
+                    ->formatStateUsing(fn(String $state) => ucwords("{$state}"))
             ])
             ->filters([
-                //
+                SelectFilter::make('gender')
+                    ->label('Jenis Kelamin')
+                    ->options([
+                        'male' => 'Male',
+                        'female' => 'Female',
+                    ]),
+                Filter::make('birthday')
+                    ->label('Filter by Birthday')
+                    ->form([
+                        DatePicker::make('from')
+                            ->label('From'),
+                        DatePicker::make('to')
+                            ->label('To'),
+                        Select::make('sort_order')
+                            ->label('Sort Order')
+                            ->options([
+                                'asc' => 'Ascending',
+                                'desc' => 'Descending',
+                            ])
+                            ->default('asc'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        // Apply the date range filtering
+                        $query->when(
+                            $data['from'] ?? null,
+                            fn(Builder $query, $date) => $query->whereDate('birthday', '>=', $date)
+                        )->when(
+                            $data['to'] ?? null,
+                            fn(Builder $query, $date) => $query->whereDate('birthday', '<=', $date)
+                        );
+
+                        // Apply sorting based on the selected sort order
+                        if (!empty($data['sort_order'])) {
+                            $query->orderBy('birthday', $data['sort_order']);
+                        }
+
+                        return $query;
+                    }),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    BulkAction::make('Accept')
+                        ->icon('heroicon-m-check')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $record) {
+                            return $record->each->update(['status' => 'accept']);
+                        }),
+                    BulkAction::make('Off')
+                        ->icon('heroicon-m-x-circle')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $record) {
+                            return $record->each->update(['status' => 'off']);
+                        }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
@@ -107,10 +173,59 @@ class StudentResource extends Resource
     public static function getLabel(): ?string
     {
         $locale = App::getLocale();
-        if($locale == "id"){
+        if ($locale == "id") {
             return "Murid";
-        }else{
+        } else {
             return "Students";
         }
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Components\Section::make()
+                    ->schema([
+                        Fieldset::make('Biodata')
+                            ->schema([
+                                Components\Split::make([
+                                    Components\ImageEntry::make('profile')
+                                        ->hiddenLabel()
+                                        ->grow(false),
+                                    Components\Grid::make(2)
+                                        ->schema([
+                                            Components\Group::make([
+                                                Components\TextEntry::make('nis'),
+                                                Components\TextEntry::make('name'),
+                                                Components\TextEntry::make('gender'),
+                                                Components\TextEntry::make('birthday'),
+
+                                            ])
+                                                ->inlineLabel()
+                                                ->columns(1),
+
+                                            Components\Group::make([
+                                                Components\TextEntry::make('religion'),
+                                                Components\TextEntry::make('contact'),
+                                                Components\TextEntry::make('status')
+                                                    ->badge()
+                                                    ->color(fn(string $state): string => match ($state) {
+                                                        'accept' => 'success',
+                                                        'off' => 'danger',
+                                                        'grade' => 'success',
+                                                        'move' => 'warning',
+                                                        'wait' => 'gray'
+                                                    }),
+                                                Components\ViewEntry::make('QRCode')
+                                                    ->view('filament.resources.students.qrcode'),
+                                            ])
+                                                ->inlineLabel()
+                                                ->columns(1),
+                                        ])
+
+                                ])->from('lg')
+                            ])->columns(1)
+                    ])->columns(2)
+            ]);
     }
 }
