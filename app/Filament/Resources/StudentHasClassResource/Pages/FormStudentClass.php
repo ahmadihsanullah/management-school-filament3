@@ -59,18 +59,31 @@ class FormStudentClass extends Page implements HasForms
     {
         $students = $this->students;
         $data = [];
+
         foreach ($students as $row) {
-            array_push($data,  [
-                'students_id' => $row,
-                'classrooms_id' => $this->classrooms,
-                'periode_id' => $this->periode,
-                'is_open' => 1
-            ]);
+            // Cek apakah student sudah ada di kelas ini dengan periode yang sama
+            $existingRecord = StudentHasClass::where('students_id', $row)
+                ->where('classrooms_id', $this->classrooms)
+                ->where('periode_id', $this->periode)
+                ->first();
+
+            // Jika belum ada, tambahkan ke dalam array data
+            if (!$existingRecord) {
+                array_push($data, [
+                    'students_id' => $row,
+                    'classrooms_id' => $this->classrooms,
+                    'periode_id' => $this->periode,
+                    'is_open' => 1
+                ]);
+            }
         }
+
+        // Simpan semua data yang sudah diproses
         foreach ($data as $record) {
             StudentHasClass::create($record);
         }
-    
+
+        // Redirect setelah penyimpanan
         return redirect()->to('admin/student-has-classes');
     }
 }

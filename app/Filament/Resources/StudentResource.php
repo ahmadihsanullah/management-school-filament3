@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\Data\EnumReligions;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Student;
@@ -31,6 +32,7 @@ use Filament\Infolists\Components;
 use Filament\Infolists\Components\Fieldset;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Validation\Rules\Enum;
 
 class StudentResource extends Resource
 {
@@ -59,14 +61,7 @@ class StudentResource extends Resource
                             ]),
                         DatePicker::make('birthday'),
                         Select::make('religion')
-                            ->options([
-                                'Islam' => 'Islam',
-                                'Katolik' => 'Katolik',
-                                'Protestan' => 'Protestan',
-                                'Hindu' => 'Hindu',
-                                'Budha' => 'Budha',
-                                'Khonghucu' => 'Khonghucu',
-                            ]),
+                            ->options(EnumReligions::class),
                         TextInput::make('contact'),
                         FileUpload::make('profile')
                             ->directory('students'),
@@ -191,6 +186,7 @@ class StudentResource extends Resource
                                 Components\Split::make([
                                     Components\ImageEntry::make('profile')
                                         ->hiddenLabel()
+                                        ->lazy()
                                         ->grow(false),
                                     Components\Grid::make(2)
                                         ->schema([

@@ -14,6 +14,6 @@ class Teacher extends Model
 
     public function classroom(): HasMany
     {
-        return $this->hasMany(HomeRoom::class, 'teacher_id', 'id');
+        return $this->hasMany(HomeRoom::class, 'teachers_id', 'id');
     }
 }

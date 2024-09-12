@@ -6,6 +6,7 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -40,8 +41,8 @@ class UserResource extends Resource
                     ->dehydrated(fn (?string $state): bool => filled($state))
                     ->required(fn (Page $livewire): bool => $livewire instanceof CreateRecord),
                 Select::make("roles")
+                ->relationship('roles','name')  
                     ->multiple()
-                    ->relationship('roles','name')
             ]);
     }
 

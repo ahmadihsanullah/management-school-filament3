@@ -26,6 +26,8 @@ class StudentHasClassResource extends Resource
 
     protected static ?string $navigationGroup = 'Academic';
 
+    protected static ?string $navigationLabel = 'Kelas Siswa';
+
     protected static ?int $navigationSort = 23;
 
     public static function form(Form $form): Form
@@ -55,7 +57,8 @@ class StudentHasClassResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('students.name'),
-                TextColumn::make('classrooms.name')
+                TextColumn::make('classrooms.name'),
+                TextColumn::make('periode.name'),
             ])
             ->filters([
                 //

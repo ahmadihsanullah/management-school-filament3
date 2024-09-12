@@ -15,10 +15,9 @@ class StudentSeeder extends Seeder
     public function run(): void
     {
         $faker = Faker::create();
-
         for ($i = 0; $i < 100; $i++) {
             Student::create([
-                'nis' => $i,
+                'nis' => $randomNumber = str_pad(rand(0, 99999), 5, '0', STR_PAD_LEFT),
                 'name' => $faker->name('male'), // Menghasilkan nama acak dengan jenis kelamin laki-laki
                 'gender' => 'Male',
                 'birthday' => $faker->date(),

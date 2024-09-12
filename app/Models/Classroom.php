@@ -15,7 +15,7 @@ class Classroom extends Model
 
     public function teacher(): BelongsTo
     {
-        return $this->belongsTo(Teacher::class, 'teacher_id', 'id');
+        return $this->belongsTo(Teacher::class, 'teachers_id', 'id');
     }
 
     public function subjects(): BelongsToMany
